@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 
 import '../../my_theme.dart';
@@ -19,6 +20,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   var emailController = TextEditingController();
 
   var passwordController = TextEditingController();
+  AutovalidateMode? autovalidateMode = AutovalidateMode.disabled;
+  bool isPasswordShow = true;
+  String _errorMessage = '';
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               Form(
                 key: formKey,
+                autovalidateMode: autovalidateMode,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -74,6 +79,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               .copyWith(fontSize: 15)),
                     ),
                     CustomTextFormField(
+                      onChanged: (value) {},
                       hint: 'Ali mohamed',
                       keyboardType: TextInputType.text,
                       controller: nameController,
@@ -96,18 +102,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       hint: 'Patient@self.com',
                       keyboardType: TextInputType.emailAddress,
                       controller: emailController,
-                      validator: (text) {
-                        if (text == null || text.trim().isEmpty) {
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
                           return 'Please enter your email address';
                         }
                         bool emailValid = RegExp(
                                 r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                            .hasMatch(text);
+                            .hasMatch(value);
                         if (!emailValid) {
                           return "Please enter a valid email";
                         }
-
                         return null;
+                      },
+                      onChanged: (value) {
+                        validateEmail(value!);
                       },
                     ),
                     Padding(
@@ -119,6 +127,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               .copyWith(fontSize: 15)),
                     ),
                     CustomTextFormField(
+                      onChanged: (value) {},
                       isPassword: true,
                       hint: 'Min 8 Cyfr',
                       keyboardType: TextInputType.number,
@@ -160,8 +169,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 .textTheme
                                 .titleSmall!
                                 .copyWith(
-                                    color: MyTheme.primaryColor,
-                                    decoration: TextDecoration.underline)),
+                                color: MyTheme.primaryColor,
+                                decoration: TextDecoration.underline)),
                       ],
                     ),
                     SizedBox(
@@ -200,9 +209,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   .textTheme
                                   .titleSmall!
                                   .copyWith(
-                                    color: MyTheme.primaryColor,
-                                    decoration: TextDecoration.underline,
-                                  ),
+                                color: MyTheme.primaryColor,
+                                decoration: TextDecoration.underline,
+                              ),
                             ))
                       ],
                     )
@@ -214,6 +223,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  void validateEmail(String val) {
+    if (!EmailValidator.validate(val, true) && val.isNotEmpty) {
+      setState(() {
+        _errorMessage = "Invalid Email Address";
+      });
+    } else {
+      setState(() {
+        _errorMessage = "";
+      });
+    }
   }
 
   void register() async {
@@ -273,6 +294,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       //
       //     print(e);
       //   }
+    } else {
+      autovalidateMode = AutovalidateMode.always;
+      setState(() {});
     }
   }
 }

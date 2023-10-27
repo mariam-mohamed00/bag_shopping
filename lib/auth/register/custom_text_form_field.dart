@@ -8,15 +8,15 @@ class CustomTextFormField extends StatefulWidget {
   TextInputType keyboardType;
   String? Function(String?)? validator;
   bool isPassword;
-
-  // static bool isPassword = false  ;
   Widget? suffixIcon;
+  String? Function(String?)? onChanged;
 
   CustomTextFormField(
       {required this.hint,
       required this.keyboardType,
       required this.controller,
       required this.validator,
+      required this.onChanged,
       this.suffixIcon,
       this.isPassword = false});
 
@@ -37,6 +37,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         controller: widget.controller,
         validator: widget.validator,
         keyboardType: widget.keyboardType,
+        onChanged: widget.onChanged,
         decoration: InputDecoration(
           suffixIcon: widget.isPassword
               ? IconButton(

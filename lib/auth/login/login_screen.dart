@@ -1,7 +1,5 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-
-// import 'package:online_shopping/auth/login/forgetPass.dart';
-// import 'package:online_shopping/auth/register/register_screen.dart';
 
 import '../../my_theme.dart';
 import '../register/custom_text_form_field.dart';
@@ -20,6 +18,10 @@ class _LoginScreenState extends State<LoginScreen> {
   var emailController = TextEditingController();
 
   var passwordController = TextEditingController();
+
+  AutovalidateMode? autovalidateMode = AutovalidateMode.disabled;
+  bool isPasswordShow = true;
+  String _errorMessage = '';
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               Form(
                 key: formKey,
+                autovalidateMode: autovalidateMode,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -84,17 +87,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: TextInputType.emailAddress,
                       controller: emailController,
                       // viewModel.emailController,
-                      validator: (text) {
-                        if (text == null || text.trim().isEmpty) {
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
                           return 'Please enter your email address';
                         }
                         bool emailValid = RegExp(
                                 r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                            .hasMatch(text);
+                            .hasMatch(value);
                         if (!emailValid) {
                           return "Please enter a valid email";
                         }
                         return null;
+                      },
+                      onChanged: (value) {
+                        validateEmail(value!);
                       },
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.02),
@@ -107,28 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               .copyWith(fontSize: 15)),
                     ),
                     CustomTextFormField(
+                      onChanged: (value) {},
                       isPassword: true,
                       hint: 'Min 8 Cyfr',
-                      //   suffixIcon:  // (widget.isPassword)?
-                      //   IconButton(
-                      //     icon: ImageIcon(
-                      //         color: MyTheme.greyColor,
-                      //         // CustomTextFormField.isPassword==false ? AssetImage(
-                      //         //     'assets/images/icon_eye_closed.png')
-                      //         //     : AssetImage(
-                      //         //     'assets/images/icon_eye_open.png')),
-                      //     onPressed: () {
-                      //
-                      //
-                      //       // CustomTextFormField.isPassword =
-                      //       // !CustomTextFormField.isPassword;
-                      //       setState(
-                      //             () {
-                      //
-                      //         },
-                      //       );
-                      //     },
-                      //   ),
                       keyboardType: TextInputType.number,
                       controller: passwordController,
                       // viewModel.passwordController,
@@ -163,16 +150,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         login();
                       },
-                      child: Text('Sign in',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium!
-                              .copyWith(color: MyTheme.whiteColor)),
                       style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(vertical: 20),
                           backgroundColor: MyTheme.primaryColor,
                           shape: StadiumBorder(
                               side: BorderSide(color: MyTheme.primaryColor))),
+                      child: Text('Sign in',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(color: MyTheme.whiteColor)),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -193,9 +180,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   .textTheme
                                   .titleSmall!
                                   .copyWith(
-                                    color: MyTheme.primaryColor,
-                                    decoration: TextDecoration.underline,
-                                  ),
+                                color: MyTheme.primaryColor,
+                                decoration: TextDecoration.underline,
+                              ),
                             ))
                       ],
                     ),
@@ -209,8 +196,24 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void validateEmail(String val) {
+    if (!EmailValidator.validate(val, true) && val.isNotEmpty) {
+      setState(() {
+        _errorMessage = "Invalid Email Address";
+      });
+    } else {
+      setState(() {
+        _errorMessage = "";
+      });
+    }
+  }
+
   void login() async {
-    if (formKey.currentState!.validate() == true) {}
+    if (formKey.currentState!.validate() == true) {
+    } else {
+      autovalidateMode = AutovalidateMode.always;
+      setState(() {});
+    }
     //   DialogUtils.showLoading(context, 'AppLocalizations.of(context)!.loading');
     //   try {
     //     final credential = await FirebaseAuth.instance
